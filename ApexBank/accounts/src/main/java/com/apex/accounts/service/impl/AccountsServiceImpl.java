@@ -1,10 +1,13 @@
 package com.apex.accounts.service.impl;
 
 import com.apex.accounts.constants.AccountsConst;
+import com.apex.accounts.dto.AccountsDto;
 import com.apex.accounts.dto.CustomerDto;
 import com.apex.accounts.entity.Accounts;
 import com.apex.accounts.entity.Customer;
 import com.apex.accounts.exception.CustomerAlreadyExistsException;
+import com.apex.accounts.exception.ResourceNotFoundException;
+import com.apex.accounts.mapper.AccountMapper;
 import com.apex.accounts.mapper.CustomerMapper;
 import com.apex.accounts.repository.AccountsRepo;
 import com.apex.accounts.repository.CustomerRepo;
@@ -49,6 +52,17 @@ public class AccountsServiceImpl implements AccountsService {
         newAccount.setAccountType(AccountsConst.SAVINGS);
         newAccount.setBranchAddress(AccountsConst.ADDRESS);
         return newAccount;
+    }
+
+    @Override
+    public CustomerDto fetchAccount(String mobileNumber) {
+        Customer customer = customerRepo.findByMobileNumber(mobileNumber)
+                                            .orElseThrow(() -> new ResourceNotFoundException("Customer","MobileNumber",mobileNumber));
+        Accounts accounts = accountsRepo.findByCustomerId(customer.getCustomerId())
+                                            .orElseThrow(() -> new ResourceNotFoundException("Accounts","CustomerID",customer.getCustomerId().toString()));
+        CustomerDto customerDto = CustomerMapper.mapToCustomerDto(customer,new CustomerDto());
+        customerDto.setAccountsDto(AccountMapper.mapToAccountsDto(accounts,new AccountsDto()));
+        return customerDto;
     }
 
 }
