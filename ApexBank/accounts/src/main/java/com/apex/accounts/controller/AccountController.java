@@ -4,7 +4,6 @@ import com.apex.accounts.constants.AccountsConst;
 import com.apex.accounts.dto.CustomerDto;
 import com.apex.accounts.dto.ResponseDto;
 import com.apex.accounts.service.AccountsService;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -45,6 +44,21 @@ public class AccountController {
             return ResponseEntity
                     .status(HttpStatus.EXPECTATION_FAILED)
                     .body(new ResponseDto(AccountsConst.STATUS_417, AccountsConst.MESSAGE_417_UPDATE));
+        }
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<ResponseDto> deleteAccountDetails(@RequestParam
+                                                            String mobileNumber) {
+        boolean isDeleted = accountsService.deleteAccount(mobileNumber);
+        if(isDeleted) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ResponseDto(AccountsConst.STATUS_200, AccountsConst.MESSAGE_200));
+        }else{
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new ResponseDto(AccountsConst.STATUS_417, AccountsConst.MESSAGE_417_DELETE));
         }
     }
 
