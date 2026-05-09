@@ -4,6 +4,7 @@ import com.apex.accounts.constants.AccountsConst;
 import com.apex.accounts.dto.CustomerDto;
 import com.apex.accounts.dto.ResponseDto;
 import com.apex.accounts.service.AccountsService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,6 +32,20 @@ public class AccountController {
     public ResponseEntity<CustomerDto> fetchAccount(@RequestParam String mobileNumber){
         CustomerDto customerDto = accountsService.fetchAccount(mobileNumber);
         return ResponseEntity.status(HttpStatus.OK).body(customerDto);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<ResponseDto> updateAccountDetails(@RequestBody CustomerDto customerDto) {
+        boolean isUpdated = accountsService.updateAccount(customerDto);
+        if(isUpdated) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ResponseDto(AccountsConst.STATUS_200, AccountsConst.MESSAGE_200));
+        }else{
+            return ResponseEntity
+                    .status(HttpStatus.EXPECTATION_FAILED)
+                    .body(new ResponseDto(AccountsConst.STATUS_417, AccountsConst.MESSAGE_417_UPDATE));
+        }
     }
 
 }
