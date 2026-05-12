@@ -14,3 +14,15 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+build:
+  version: "4.0.0"
+
+cards:
+  message: "Welcome to ApexBank cards related local APIs "
+  contactDetails:
+    name: "Apex Doe - Developer"
+    email: "Doe@apexbank.com"
+  onCallSupport:
+    - (555) 555-1234
+    - (555) 523-1345

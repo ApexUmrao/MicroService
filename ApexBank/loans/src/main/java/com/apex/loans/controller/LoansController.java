@@ -1,5 +1,6 @@
 package com.apex.loans.controller;
 
+import com.apex.loans.dto.LoansContactInfoDto;
 import com.apex.loans.constants.LoansConstants;
 import com.apex.loans.dto.ErrorResponseDto;
 import com.apex.loans.dto.LoansDto;
@@ -13,32 +14,44 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * @author Eazy Bytes
- */
 
 @Tag(
-        name = "CRUD REST APIs for Loans in EazyBank",
-        description = "CRUD REST APIs in EazyBank to CREATE, UPDATE, FETCH AND DELETE loan details"
+        name = "CRUD REST APIs for Loans in ApexBank",
+        description = "CRUD REST APIs in ApexBank to CREATE, UPDATE, FETCH AND DELETE loan details"
 )
 @RestController
 @RequestMapping(path = "/api", produces = {MediaType.APPLICATION_JSON_VALUE})
-@AllArgsConstructor
 @Validated
 public class LoansController {
 
-    private ILoansService iLoansService;
+    private final ILoansService iLoansService;
+    
+    public LoansController(ILoansService iLoansService) {
+		this.iLoansService = iLoansService;
+	}
+    
+    @Value("${build.version}")
+	private String buildVersion;
+	
+	@Autowired
+	private Environment environment;
+	
+	@Autowired
+	private LoansContactInfoDto loansContactInfoDto;
 
     @Operation(
             summary = "Create Loan REST API",
-            description = "REST API to create new loan inside EazyBank"
+            description = "REST API to create new loan inside ApexBank"
     )
     @ApiResponses({
             @ApiResponse(
@@ -162,6 +175,22 @@ public class LoansController {
                     .status(HttpStatus.EXPECTATION_FAILED)
                     .body(new ResponseDto(LoansConstants.STATUS_417, LoansConstants.MESSAGE_417_DELETE));
         }
+    }
+    
+    @GetMapping("/build-info")
+    public ResponseEntity<String> getBuildVersion(){
+    		return ResponseEntity.status(HttpStatus.OK).body(buildVersion);
+    }
+    
+    @GetMapping("/java-version")
+    public ResponseEntity<String> getJavaVersion(){
+			return ResponseEntity.status(HttpStatus.OK).body(environment.getProperty("JAVA_HOME"));
+    
+    }
+    
+    @GetMapping("/contact-info")
+    public ResponseEntity<LoansContactInfoDto> getContactInfo(){
+    	return ResponseEntity.status(HttpStatus.OK).body(loansContactInfoDto);
     }
 
 }
