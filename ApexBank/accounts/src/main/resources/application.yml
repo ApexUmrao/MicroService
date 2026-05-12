@@ -21,6 +21,9 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  profiles:
+    active: "prod"
+
 
 build:
   version: "3.0"
