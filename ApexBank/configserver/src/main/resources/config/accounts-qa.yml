@@ -2,7 +2,7 @@ build:
   version: "2.0"
 
 accounts:
-  message: "Welcome to apeBank accounts related QA APIs "
+  message: "Welcome to ApexBank accounts related QA APIs "
   contactDetails:
     name: "Smitha Ray - QA Lead"
     email: "smitha@apexbank.com"

@@ -5,6 +5,9 @@ spring:
   application:
     name: accounts
 
+  profiles:
+    active: "prod"
+
   datasource:
     url: jdbc:h2:mem:apexdb
     username: apex
@@ -21,18 +24,5 @@ spring:
       ddl-auto: update
     show-sql: true
 
-  profiles:
-    active: "prod"
-
-
-build:
-  version: "3.0"
-
-accounts:
-  message: "Welcome to ApexBank accounts related local APIs "
-  contactDetails:
-        name: "Apex Doe - Developer"
-        email: "Doe@apexbank.com"
-  onCallSupport:
-  - (555) 555-1234
-  - (555) 523-1345 
+  config:
+    import: "configserver:http://localhost:8071/"
