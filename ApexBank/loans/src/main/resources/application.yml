@@ -1,6 +1,10 @@
 server:
   port: 8090
 spring:
+  application:
+    name: "loans"
+  profiles:
+    active: "prod"
   datasource:
     url: jdbc:h2:mem:testdb
     driverClassName: org.h2.Driver
@@ -14,17 +18,5 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
-  profiles:
-    active: "qa"
-
-build:
-  version: "4.0"
-
-loans:
-  message: "Welcome to ApexBank loans related local APIs "
-  contactDetails:
-    name: "Apex Doe - Developer"
-    email: "Doe@apexbank.com"
-  onCallSupport:
-    - (555) 555-1234
-    - (555) 523-1345
+  config:
+    import: "configserver:http://localhost:8071/"

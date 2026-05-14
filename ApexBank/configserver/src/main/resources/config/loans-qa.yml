@@ -2,7 +2,7 @@ build:
   version: "2.0"
 
 loans:
-  message: "Welcome to apeBank loans related QA APIs "
+  message: "Welcome to ApexBank loans related QA APIs "
   contactDetails:
     name: "Cyrano Marita - QA Lead"
     email: "cyrano@apexbank.com"
