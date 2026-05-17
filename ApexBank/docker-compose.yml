@@ -1,6 +1,17 @@
 services:
+  configserver:
+    image: "apexhunt/configserver:v2"
+    container_name: configserverApex
+    ports:
+      - "8071:8071"
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+    networks:
+      - apexbank
   accounts:
-    image: "apexhunt/accounts:v1"
+    image: "apexhunt/accounts:v2"
     container_name: accountsApex
     ports:
       - "8080:8080"
@@ -10,8 +21,11 @@ services:
           memory: 700m
     networks:
       - apexbank
+    environment:
+      SPRING_APPLICATION_NAME: "accounts"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
   loans:
-    image: "apexhunt/loans:v1"
+    image: "apexhunt/loans:v2"
     container_name: loansApex
     ports:
       - "8090:8090"
@@ -21,8 +35,11 @@ services:
           memory: 700m
     networks:
       - apexbank
+    environment:
+      SPRING_APPLICATION_NAME: "cards"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
   cards:
-    image: "apexhunt/cards:v1"
+    image: "apexhunt/cards:v2"
     container_name: cardsApex
     ports:
       - "9000:9000"
@@ -32,6 +49,9 @@ services:
           memory: 700m
     networks:
       - apexbank
+    environment:
+      SPRING_APPLICATION_NAME: "loans"
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
 networks:
   apexbank:
     driver: "bridge"
