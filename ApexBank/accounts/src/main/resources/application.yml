@@ -27,6 +27,10 @@ spring:
   config:
     import: "configserver:http://localhost:8071/"
 
+  cloud:
+    bus:
+      enabled: false
+
 #  rabbitmq:
 #    host: localhost
 #    port: 5672
@@ -38,5 +42,31 @@ management:
     web:
       exposure:
         include: "*"
+  endpoint:
+    shutdown:
+      access: unrestricted
+  info:
+    env:
+      enabled: true
+
+endpoints:
+  shutdown:
+    enabled: true
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    fetchRegistry: true
+    registerWithEureka: true
+    service-url:
+      defaultZone: "http://localhost:8070/eureka/"
+
+info:
+  app:
+    name: "accounts"
+    description: "Apex Bank Accounts Application"
+    version: "1.0"
+
 
 
