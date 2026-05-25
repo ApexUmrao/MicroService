@@ -1,22 +1,22 @@
 services:
-  rabbit:
-    image: rabbitmq:4-management
-    hostname: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    healthcheck:
-      test: rabbitmq-diagnostics check_port_connectivity
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 5s
-    extends:
-      file: common-config.yml
-      service: network-deploy-service
+#  rabbit:
+#    image: rabbitmq:4-management
+#    hostname: rabbitmq
+#    ports:
+#      - "5672:5672"
+#      - "15672:15672"
+#    healthcheck:
+#      test: rabbitmq-diagnostics check_port_connectivity
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
+#      start_period: 5s
+#    extends:
+#      file: common-config.yml
+#      service: network-deploy-service
 
   configserver:
-    image: "apexhunt/configserver:v2"
+    image: "apexhunt/configserver:v3"
     container_name: configserverApex
     ports:
       - "8071:8071"
@@ -33,8 +33,28 @@ services:
         file: common-config.yml
         service: microservice-base-config
 
+  eurekaserver:
+    image: "apexhunt/eurekaserver:v3"
+    container_name: eurekaserverApex
+    ports:
+      - "8070:8070"
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    extends:
+      file: common-config.yml
+      service: microservice-base-config
+    environment:
+      SPRING_APPLICATION_NAME: "eurekaserver"
+
   accounts:
-    image: "apexhunt/accounts:v2"
+    image: "apexhunt/accounts:v3"
     container_name: accountsApex
     ports:
       - "8080:8080"
@@ -48,7 +68,7 @@ services:
         service: microservice-configserver-config
 
   loans:
-    image: "apexhunt/loans:v2"
+    image: "apexhunt/loans:v3"
     container_name: loansApex
     ports:
       - "8090:8090"
@@ -62,7 +82,7 @@ services:
       service: microservice-configserver-config
 
   cards:
-    image: "apexhunt/cards:v2"
+    image: "apexhunt/cards:v3"
     container_name: cardsApex
     ports:
       - "9000:9000"
