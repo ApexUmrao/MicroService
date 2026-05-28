@@ -1,3 +1,31 @@
 spring:
   application:
     name: apigatewayserver
+  config:
+    import: "configserver:http://localhost:8071/"
+  cloud:
+    gateway:
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: false
+              lowerCaseServiceId: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    shutdown:
+      access: unrestricted
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: "API Gateway Server"
+    description: "Apex Bank API Gateway Application"
+    version: "1.0"
