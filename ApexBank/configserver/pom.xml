@@ -81,7 +81,7 @@
                 <version>3.5.1</version>
                 <configuration>
                     <to>
-                        <image>apexhunt/${project.artifactId}:v3</image>
+                        <image>apexhunt/${project.artifactId}:v4</image>
                     </to>
                 </configuration>
             </plugin>
