@@ -9,8 +9,9 @@ spring:
         webflux:
           discovery:
             locator:
-              enabled: false
-              lowerCaseServiceId: true
+              enabled: true
+              lower-case-service-id: true
+
 
 management:
   endpoints:
@@ -20,9 +21,11 @@ management:
   endpoint:
     shutdown:
       access: unrestricted
+    gateway:
+      access: unrestricted
   info:
     env:
-      enabled: true
+     enabled: true
 
 info:
   app:
