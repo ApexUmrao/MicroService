@@ -198,6 +198,8 @@ public class LoansController {
     
     @GetMapping("/contact-info")
     public ResponseEntity<LoansContactInfoDto> getContactInfo(){
+        logger.debug("Invoke LoansController --> getContactInfo()");
+//        throw new RuntimeException("Not implemented yet"); //For testing of retry mechanism
     	return ResponseEntity.status(HttpStatus.OK).body(loansContactInfoDto);
     }
 

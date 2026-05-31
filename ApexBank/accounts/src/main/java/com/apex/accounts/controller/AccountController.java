@@ -1,5 +1,8 @@
 package com.apex.accounts.controller;
 
+import io.github.resilience4j.retry.annotation.Retry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -40,6 +43,8 @@ import jakarta.validation.constraints.Pattern;
 @RequestMapping(path = "/api", produces = MediaType.APPLICATION_JSON_VALUE)
 @Validated
 public class AccountController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
 
     private final AccountsService accountsService;
 	
@@ -188,12 +193,23 @@ public class AccountController {
                     .body(new ResponseDto(AccountsConst.STATUS_417, AccountsConst.MESSAGE_417_DELETE));
         }
     }
-    
+
+    @Retry(name = "getBuildVersion", fallbackMethod = "getBuildVersionFallback")
     @GetMapping("/build-info")
     public ResponseEntity<String> getBuildVersion(){
-    		return ResponseEntity.status(HttpStatus.OK).body(buildVersion);
+    	logger.debug("Invoke Method --> BuildVersion");
+//        throw new NullPointerException("getBuildVersionFallback"); //Testing retry
+        return ResponseEntity.status(HttpStatus.OK).body("0.9");
     }
-    
+
+    public ResponseEntity<String> getBuildVersionFallback( Throwable throwable){
+        logger.debug("Invoke Method -> getBuildVersionFallback");
+        //        throw new NullPointerException("getBuildVersionFallback"); //Testing retry
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(buildVersion);
+    }
+
     @GetMapping("/java-version")
     public ResponseEntity<String> getJavaVersion(){
 			return ResponseEntity.status(HttpStatus.OK).body(environment.getProperty("JAVA_HOME"));
