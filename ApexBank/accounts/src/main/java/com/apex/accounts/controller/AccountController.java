@@ -1,5 +1,6 @@
 package com.apex.accounts.controller;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -210,10 +211,18 @@ public class AccountController {
             .body(buildVersion);
     }
 
+    @RateLimiter(name = "getJavaVersion", fallbackMethod = "getJavaVersionFallback")
     @GetMapping("/java-version")
     public ResponseEntity<String> getJavaVersion(){
 			return ResponseEntity.status(HttpStatus.OK).body(environment.getProperty("JAVA_HOME"));
     
+    }
+
+    public ResponseEntity<String> getJavaVersionFallback( Throwable throwable){
+        logger.debug("Invoke Method -> getJavaVersionFallback");
+        return  ResponseEntity
+                .status(HttpStatus.OK)
+                .body(environment.getProperty("JAVA 17"));
     }
     
     @GetMapping("/contact-info")
