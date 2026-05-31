@@ -1,5 +1,7 @@
 package com.apex.cards.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -7,14 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.apex.cards.constants.CardsConstants;
 import com.apex.cards.dto.CardsContactInfoDto;
@@ -43,6 +38,8 @@ import jakarta.validation.constraints.Pattern;
 public class CardsController {
 
     private final ICardsService iCardsService;
+
+    private static final Logger logger = LoggerFactory.getLogger(CardsController.class);
     
     public CardsController(ICardsService iCardsService) {
     	this.iCardsService = iCardsService;
@@ -103,9 +100,12 @@ public class CardsController {
             )
     })
     @GetMapping("/fetch")
-    public ResponseEntity<CardsDto> fetchCardDetails(@RequestParam
+    public ResponseEntity<CardsDto> fetchCardDetails( @RequestHeader("apexbank-correlation-id")
+                                                          String correlationId,
+                                                      @RequestParam
                                                                @Pattern(regexp="(^$|[0-9]{10})",message = "Mobile number must be 10 digits")
                                                                String mobileNumber) {
+        logger.debug("apexBank-correlation-id found : {}", correlationId);
         CardsDto cardsDto = iCardsService.fetchCard(mobileNumber);
         return ResponseEntity.status(HttpStatus.OK).body(cardsDto);
     }

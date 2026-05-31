@@ -60,3 +60,9 @@ info:
     name: "loans"
     description: "Apex Bank loans Application"
     version: "1.0"
+
+logging:
+  level:
+    com:
+      apex:
+        loans: BEBUG

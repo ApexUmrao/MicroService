@@ -69,4 +69,9 @@ info:
     version: "1.0"
 
 
+logging:
+  level:
+    com:
+      apex:
+        accounts: BEBUG
 

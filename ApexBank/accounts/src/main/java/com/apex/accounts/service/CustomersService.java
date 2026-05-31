@@ -4,7 +4,7 @@ import com.apex.accounts.dto.CustomerDetailsDto;
 
 public interface CustomersService {
 
-    CustomerDetailsDto fetchCustomerDetails(String mobileNumber);
+    CustomerDetailsDto fetchCustomerDetails(String mobileNumber, String correlationId);
 
 }
 
