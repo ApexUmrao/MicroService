@@ -28,6 +28,9 @@ spring:
     import: "configserver:http://localhost:8071/"
 
   cloud:
+    circuitbreaker:
+      resilience4j:
+        enabled: true
     bus:
       enabled: false
 
@@ -81,5 +84,13 @@ logging:
   level:
     com:
       apex:
-        accounts: BEBUG
+        accounts: DEBUG
 
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      slidingWindowSize: 10
+      permittedNumberOfCallsInHalfOpenState: 2
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10000
