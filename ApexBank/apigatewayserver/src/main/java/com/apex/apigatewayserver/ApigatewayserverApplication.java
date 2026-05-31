@@ -19,17 +19,23 @@ public class ApigatewayserverApplication {
                 .route(p -> p
                         .path("/apexbank/accounts/**")
                         .filters( f -> f.rewritePath("/apexbank/accounts/(?<segment>.*)","/${segment}")
-                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                                .circuitBreaker(config -> config.setName("accountsCircuitBreaker")
+                                        .setFallbackUri("forward:/contactSupport")))
                         .uri("lb://ACCOUNTS"))
                 .route(p -> p
                         .path("/apexbank/loans/**")
                         .filters( f -> f.rewritePath("/apexbank/loans/(?<segment>.*)","/${segment}")
-                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                                .circuitBreaker(config -> config.setName("loansCircuitBreaker")
+                                         .setFallbackUri("forward:/contactSupport")))
                         .uri("lb://LOANS"))
                 .route(p -> p
                         .path("/apexbank/cards/**")
                         .filters( f -> f.rewritePath("/apexbank/cards/(?<segment>.*)","/${segment}")
-                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                                .circuitBreaker(config -> config.setName("cardsCircuitBreaker")
+                                        .setFallbackUri("forward:/contactSupport")))
                         .uri("lb://CARDS")).build();
 
 
