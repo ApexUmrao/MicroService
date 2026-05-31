@@ -15,6 +15,19 @@ services:
 #      file: common-config.yml
 #      service: network-deploy-service
 
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
+      timeout: 10s
+      retries: 10
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
+
   configserver:
     image: "apexhunt/configserver:v4"
     container_name: configserverApex
@@ -54,21 +67,29 @@ services:
       SPRING_APPLICATION_NAME: "eurekaserver"
 
   accounts:
-    image: "apexhunt/accounts:v4"
+    image: "apexhunt/accounts:v5"
     container_name: accountsApex
     ports:
       - "8080:8080"
+    healthcheck:
+      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     depends_on:
       configserver:
+        condition: service_healthy
+      eurekaserver:
         condition: service_healthy
     environment:
         SPRING_APPLICATION_NAME: "accounts"
     extends:
         file: common-config.yml
-        service: microservice-configserver-config
+        service: microservice-eureka-config
 
   loans:
-    image: "apexhunt/loans:v4"
+    image: "apexhunt/loans:v5"
     container_name: loansApex
     ports:
       - "8090:8090"
@@ -81,14 +102,16 @@ services:
     depends_on:
      configserver:
       condition: service_healthy
+     eurekaserver:
+       condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "loans"
     extends:
       file: common-config.yml
-      service: microservice-configserver-config
+      service: microservice-eureka-config
 
   cards:
-    image: "apexhunt/cards:v4"
+    image: "apexhunt/cards:v5"
     container_name: cardsApex
     ports:
       - "9000:9000"
@@ -101,14 +124,16 @@ services:
     depends_on:
       configserver:
         condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
     environment:
         SPRING_APPLICATION_NAME: "cards"
     extends:
         file: common-config.yml
-        service: microservice-configserver-config
+        service: microservice-eureka-config
 
   apigatewayserver:
-    image: "apexhunt/apigatewayserver:v4"
+    image: "apexhunt/apigatewayserver:v5"
     container_name: gatewayserverApex
     ports:
       - "8072:8072"
@@ -119,14 +144,20 @@ services:
         condition: service_healthy
       cards:
         condition: service_healthy
-    healthcheck:
-      test: "curl --fail --silent localhost:8072/actuator/health/readiness | grep UP || exit 1"
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
+      redis:
+        condition: service_healthy
+#    healthcheck:
+#      test: "curl --fail --silent localhost:8072/actuator/health/readiness | grep UP || exit 1"
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
+#      start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "apigatewayserver"
+      SPRING_DATA_REDIS_CONNECT-TIMEOUT: 2s
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_DATA_REDIS_TIMEOUT: 1s
     extends:
       file: common-config.yml
       service: microservice-configserver-config
