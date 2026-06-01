@@ -29,13 +29,10 @@ services:
 
 
   configserver:
-    image: "apexhunt/configserver:v4"
+    image: "apexhunt/configserver:v5"
     container_name: configserverApex
     ports:
       - "8071:8071"
-    depends_on:
-      rabbit:
-        condition: service_healthy
     healthcheck:
         test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
         interval: 10s
@@ -47,22 +44,22 @@ services:
         service: microservice-base-config
 
   eurekaserver:
-    image: "apexhunt/eurekaserver:v4"
+    image: "apexhunt/eurekaserver:v5"
     container_name: eurekaserverApex
     ports:
       - "8070:8070"
     depends_on:
-      rabbit:
+      configserver:
         condition: service_healthy
     healthcheck:
-      test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit 1"
+      test: "curl --fail --silent localhost:8070/actuator/health | grep UP || exit 1"
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 10s
     extends:
       file: common-config.yml
-      service: microservice-base-config
+      service: microservice-configserver-config
     environment:
       SPRING_APPLICATION_NAME: "eurekaserver"
 
@@ -160,7 +157,7 @@ services:
       SPRING_DATA_REDIS_TIMEOUT: 1s
     extends:
       file: common-config.yml
-      service: microservice-configserver-config
+      service: microservice-eureka-config
 
 networks:
   apexbank:
