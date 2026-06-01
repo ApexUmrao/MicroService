@@ -167,7 +167,7 @@
                 <version>3.5.1</version>
                 <configuration>
                     <to>
-                        <image>apexhunt/${project.artifactId}:v4</image>
+                        <image>apexhunt/${project.artifactId}:v5</image>
                     </to>
                 </configuration>
             </plugin>
