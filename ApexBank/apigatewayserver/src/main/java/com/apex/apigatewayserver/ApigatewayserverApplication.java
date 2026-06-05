@@ -24,7 +24,8 @@ public class ApigatewayserverApplication {
     public static void main(String[] args) {
         SpringApplication.run(ApigatewayserverApplication.class, args);
     }
-
+    
+    @Bean
     public RouteLocator  getRouteLocator(RouteLocatorBuilder routeLocatorBuilder) {
         return routeLocatorBuilder.routes()
                 .route(p -> p
