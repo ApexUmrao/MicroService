@@ -60,8 +60,9 @@ public class CustomerController {
                                                                    @Pattern(regexp="(^$|[0-9]{10})",
                                                                            message = "Mobile number must be 10 digits")
                                                                    String mobileNumber){
-        logger.debug("apexBank-correlation-id found : {}", correlationId);
+        logger.debug("apexBank-fetchCustomerDetails start : ");
         CustomerDetailsDto customerDetailsDto = CustomersService.fetchCustomerDetails(mobileNumber,correlationId);
+        logger.debug("apexBank-fetchCustomerDetails end : ");
         return ResponseEntity.status(HttpStatus.SC_OK).body(customerDetailsDto);
 
     }
