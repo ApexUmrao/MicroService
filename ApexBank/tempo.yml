@@ -2,6 +2,30 @@ server:
   http_listen_port: 3100
   http_listen_address: 0.0.0.0
 
+metrics_generator:
+  storage:
+    path: /tmp/tempo/generator/wal
+
+  registry:
+    collection_interval: 15s
+
+  ring:
+    kvstore:
+      store: inmemory
+
+  processor:
+    service_graphs: {}
+    span_metrics: {}
+    local_blocks: {}
+
+overrides:
+  defaults:
+    metrics_generator:
+      processors:
+        - service-graphs
+        - span-metrics
+        - local-blocks
+        
 distributor:
   receivers:
     otlp:
@@ -13,7 +37,7 @@ distributor:
 
 ingester:
   trace_idle_period: 10s
-  max_block_bytes: 1_000_000
+  max_block_bytes: 1000000
   max_block_duration: 5m
 
 compactor:

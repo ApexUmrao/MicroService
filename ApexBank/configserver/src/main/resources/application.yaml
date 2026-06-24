@@ -30,7 +30,7 @@ spring:
 #    username: guest
 #    password: guest
 
-  management:
+management:
     endpoints:
       web:
         exposure:
@@ -48,5 +48,5 @@ spring:
       tags:
         application: ${spring.application.name}
 
-  encrypt:
+encrypt:
     key: "45D81EC1EF61DF9AD8D3E5BB397F9"
