@@ -14,6 +14,19 @@ services:
 #    extends:
 #      file: common-config.yml
 #      service: network-deploy-service
+ keycloak:
+  image: quay.io/keycloak/keycloak:26.4.7
+  container_name: keycloak
+  ports:
+    - "127.0.0.1:7080:8080"
+  environment:
+    KC_BOOTSTRAP_ADMIN_USERNAME: "admin"
+    KC_BOOTSTRAP_ADMIN_PASSWORD: "admin"
+  command: "start-dev"
+  extends:
+    file: common-config.yml
+    service: network-deploy-service
+
 
  read:
   image: grafana/loki:latest
@@ -253,7 +266,7 @@ services:
 
 
  configserver:
-    image: "apexhunt/configserver:v6"
+    image: "apexhunt/configserver:v7"
     container_name: configserverApex
     ports:
       - "8071:8071"
@@ -270,7 +283,7 @@ services:
       OTEL_SERVICE_NAME: "configserver"
 
  eurekaserver:
-    image: "apexhunt/eurekaserver:v6"
+    image: "apexhunt/eurekaserver:v7"
     container_name: eurekaserverApex
     ports:
       - "8070:8070"
@@ -291,10 +304,10 @@ services:
       OTEL_SERVICE_NAME: "eurekaserver"
 
  accounts:
-    image: "apexhunt/accounts:v6"
+    image: "apexhunt/accounts:v7"
     container_name: accountsApex
-    ports:
-      - "8080:8080"
+#    ports:
+#      - "8080:8080"
     healthcheck:
       test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
       interval: 20s
@@ -314,10 +327,10 @@ services:
         service: microservice-eureka-config
 
  loans:
-    image: "apexhunt/loans:v6"
+    image: "apexhunt/loans:v7"
     container_name: loansApex
-    ports:
-      - "8090:8090"
+#    ports:
+#      - "8090:8090"
     healthcheck:
       test: "curl --fail --silent localhost:8090/actuator/health/readiness | grep UP || exit 1"
       interval: 20s
@@ -337,10 +350,10 @@ services:
       service: microservice-eureka-config
 
  cards:
-    image: "apexhunt/cards:v6"
+    image: "apexhunt/cards:v7"
     container_name: cardsApex
-    ports:
-      - "9000:9000"
+#    ports:
+#      - "9000:9000"
     healthcheck:
       test: "curl --fail --silent localhost:9000/actuator/health/readiness | grep UP || exit 1"
       interval: 20s
@@ -360,7 +373,7 @@ services:
         service: microservice-eureka-config
 
  apigatewayserver:
-    image: "apexhunt/apigatewayserver:v6"
+    image: "apexhunt/apigatewayserver:v7"
     container_name: gatewayserverApex
     ports:
       - "8072:8072"
@@ -386,6 +399,7 @@ services:
       SPRING_DATA_REDIS_PORT: 6379
       SPRING_DATA_REDIS_TIMEOUT: 2s
       OTEL_SERVICE_NAME: "apigatewayserver"
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI: "http://keycloak:8080/realms/master/protocol/openid-connect/certs"
     extends:
       file: common-config.yml
       service: microservice-eureka-config
