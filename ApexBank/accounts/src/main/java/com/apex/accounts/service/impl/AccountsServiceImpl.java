@@ -2,6 +2,7 @@ package com.apex.accounts.service.impl;
 
 import com.apex.accounts.constants.AccountsConst;
 import com.apex.accounts.dto.AccountsDto;
+import com.apex.accounts.dto.AccountsMsgDto;
 import com.apex.accounts.dto.CustomerDto;
 import com.apex.accounts.entity.Accounts;
 import com.apex.accounts.entity.Customer;
@@ -13,6 +14,9 @@ import com.apex.accounts.repository.AccountsRepo;
 import com.apex.accounts.repository.CustomerRepo;
 import com.apex.accounts.service.AccountsService;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,9 +27,13 @@ import java.util.Random;
 @AllArgsConstructor
 public class AccountsServiceImpl implements AccountsService {
 
+    private static final Logger log = LoggerFactory.getLogger(AccountsServiceImpl.class);
+
     private CustomerRepo customerRepo;
 
     private AccountsRepo accountsRepo;
+
+    private final StreamBridge streamBridge;
 
     @Override
     public void createAccount(CustomerDto customerDto) {
@@ -36,7 +44,16 @@ public class AccountsServiceImpl implements AccountsService {
             throw new CustomerAlreadyExistsException("Customer with mobile number " + customerDto.getMobileNumber() + " already exists");
         }
         Customer savedCustomer= customerRepo.save(customer);
-        accountsRepo.save(createNewAccount(savedCustomer));
+        Accounts savedAccounts= accountsRepo.save(createNewAccount(savedCustomer));
+        sendCommunication(savedAccounts,savedCustomer);
+    }
+
+    private void sendCommunication(Accounts account, Customer customer) {
+        var accountsMsgDto = new AccountsMsgDto(account.getAccountNumber(), customer.getName(),
+                customer.getEmail(), customer.getMobileNumber());
+        log.info("Sending Communication request for the details: {}", accountsMsgDto);
+        var result = streamBridge.send("sendCommunication-out-0", accountsMsgDto);
+        log.info("Is the Communication request successfully triggered ? : {}", result);
     }
 
     private Accounts createNewAccount(Customer customer) {
