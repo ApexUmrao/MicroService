@@ -1,19 +1,20 @@
 services:
-#  rabbit:
-#    image: rabbitmq:4-management
-#    hostname: rabbitmq
-#    ports:
-#      - "5672:5672"
-#      - "15672:15672"
-#    healthcheck:
-#      test: rabbitmq-diagnostics check_port_connectivity
-#      interval: 10s
-#      timeout: 5s
-#      retries: 10
-#      start_period: 5s
-#    extends:
-#      file: common-config.yml
-#      service: network-deploy-service
+ rabbit:
+    image: rabbitmq:4-management
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
  keycloak:
   image: quay.io/keycloak/keycloak:26.4.7
   container_name: keycloak
@@ -266,7 +267,7 @@ services:
 
 
  configserver:
-    image: "apexhunt/configserver:v7"
+    image: "apexhunt/configserver:v8"
     container_name: configserverApex
     ports:
       - "8071:8071"
@@ -283,7 +284,7 @@ services:
       OTEL_SERVICE_NAME: "configserver"
 
  eurekaserver:
-    image: "apexhunt/eurekaserver:v7"
+    image: "apexhunt/eurekaserver:v8"
     container_name: eurekaserverApex
     ports:
       - "8070:8070"
@@ -304,7 +305,7 @@ services:
       OTEL_SERVICE_NAME: "eurekaserver"
 
  accounts:
-    image: "apexhunt/accounts:v7"
+    image: "apexhunt/accounts:v8"
     container_name: accountsApex
 #    ports:
 #      - "8080:8080"
@@ -319,15 +320,18 @@ services:
         condition: service_healthy
       eurekaserver:
         condition: service_healthy
+      rabbit:
+        condition: service_healthy
     environment:
         SPRING_APPLICATION_NAME: "accounts"
         OTEL_SERVICE_NAME: "accounts"
+        SPRING_RABBITMQ_HOST: "rabbit"
     extends:
         file: common-config.yml
         service: microservice-eureka-config
 
  loans:
-    image: "apexhunt/loans:v7"
+    image: "apexhunt/loans:v8"
     container_name: loansApex
 #    ports:
 #      - "8090:8090"
@@ -350,7 +354,7 @@ services:
       service: microservice-eureka-config
 
  cards:
-    image: "apexhunt/cards:v7"
+    image: "apexhunt/cards:v8"
     container_name: cardsApex
 #    ports:
 #      - "9000:9000"
@@ -372,8 +376,20 @@ services:
         file: common-config.yml
         service: microservice-eureka-config
 
+ message:
+   image: "apexhunt/message:v8"
+   container_name: message-ms
+   depends_on:
+     rabbit:
+       condition: service_healthy
+   environment:
+     SPRING_RABBITMQ_HOST: "rabbit"
+   extends:
+     file: common-config.yml
+     service: network-deploy-service
+
  apigatewayserver:
-    image: "apexhunt/apigatewayserver:v7"
+    image: "apexhunt/apigatewayserver:v8"
     container_name: gatewayserverApex
     ports:
       - "8072:8072"
