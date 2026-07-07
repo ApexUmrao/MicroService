@@ -33,8 +33,13 @@ spring:
         enabled: true
     stream:
       bindings:
+        updateCommunication-in-0:
+          destination: communication-sent
+          group: ${spring.application.name}
         sendCommunication-out-0:
           destination: send-communication
+    function:
+      definition: updateCommunication
 
   rabbitmq:
     host: localhost
