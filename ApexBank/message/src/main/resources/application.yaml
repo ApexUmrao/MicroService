@@ -8,10 +8,10 @@ spring:
     function:
       definition: email|sms
     stream:
-      binders:
+      bindings:
         emailsms-in-0:
-        destination: send-communication
-        group: ${spring.application.name}
+                destination: send-communication
+                group: ${spring.application.name}
 
   rabbitmq:
     host: localhost
