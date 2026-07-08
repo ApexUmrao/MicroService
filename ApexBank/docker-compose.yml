@@ -353,7 +353,7 @@ services:
         condition: service_healthy
       eurekaserver:
         condition: service_healthy
-      rabbit:
+      kafka:
         condition: service_healthy
     environment:
         SPRING_APPLICATION_NAME: "accounts"
@@ -415,7 +415,7 @@ services:
    image: "apexhunt/message:v9"
    container_name: message-ms
    depends_on:
-     rabbit:
+     kafka:
        condition: service_healthy
    environment:
 #     SPRING_RABBITMQ_HOST: "rabbit"
