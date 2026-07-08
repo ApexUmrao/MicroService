@@ -1,12 +1,29 @@
 services:
- rabbit:
-    image: rabbitmq:4-management
-    hostname: rabbitmq
+
+ kafka:
+    image: apache/kafka:4.1.1
+    hostname: kafka
+    container_name: kafka
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      KAFKA_LISTENERS: PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://kafka:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
     healthcheck:
-      test: rabbitmq-diagnostics check_port_connectivity
+      test: [ "CMD-SHELL", "nc -z kafka 9092 || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -14,6 +31,22 @@ services:
     extends:
       file: common-config.yml
       service: network-deploy-service
+
+# rabbit:
+#    image: rabbitmq:4-management
+#    hostname: rabbitmq
+#    ports:
+#      - "5672:5672"
+#      - "15672:15672"
+#    healthcheck:
+#      test: rabbitmq-diagnostics check_port_connectivity
+#      interval: 10s
+#      timeout: 5s
+#      retries: 10
+#      start_period: 5s
+#    extends:
+#      file: common-config.yml
+#      service: network-deploy-service
 
  keycloak:
   image: quay.io/keycloak/keycloak:26.4.7
@@ -267,7 +300,7 @@ services:
 
 
  configserver:
-    image: "apexhunt/configserver:v8"
+    image: "apexhunt/configserver:v9"
     container_name: configserverApex
     ports:
       - "8071:8071"
@@ -284,7 +317,7 @@ services:
       OTEL_SERVICE_NAME: "configserver"
 
  eurekaserver:
-    image: "apexhunt/eurekaserver:v8"
+    image: "apexhunt/eurekaserver:v9"
     container_name: eurekaserverApex
     ports:
       - "8070:8070"
@@ -305,7 +338,7 @@ services:
       OTEL_SERVICE_NAME: "eurekaserver"
 
  accounts:
-    image: "apexhunt/accounts:v8"
+    image: "apexhunt/accounts:v9"
     container_name: accountsApex
 #    ports:
 #      - "8080:8080"
@@ -325,13 +358,15 @@ services:
     environment:
         SPRING_APPLICATION_NAME: "accounts"
         OTEL_SERVICE_NAME: "accounts"
-        SPRING_RABBITMQ_HOST: "rabbit"
+#        SPRING_RABBITMQ_HOST: "rabbit"
+        SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: "kafka:9092"
+
     extends:
         file: common-config.yml
         service: microservice-eureka-config
 
  loans:
-    image: "apexhunt/loans:v8"
+    image: "apexhunt/loans:v9"
     container_name: loansApex
 #    ports:
 #      - "8090:8090"
@@ -354,7 +389,7 @@ services:
       service: microservice-eureka-config
 
  cards:
-    image: "apexhunt/cards:v8"
+    image: "apexhunt/cards:v9"
     container_name: cardsApex
 #    ports:
 #      - "9000:9000"
@@ -377,19 +412,20 @@ services:
         service: microservice-eureka-config
 
  message:
-   image: "apexhunt/message:v8"
+   image: "apexhunt/message:v9"
    container_name: message-ms
    depends_on:
      rabbit:
        condition: service_healthy
    environment:
-     SPRING_RABBITMQ_HOST: "rabbit"
+#     SPRING_RABBITMQ_HOST: "rabbit"
+     SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: "kafka:9092"
    extends:
      file: common-config.yml
      service: network-deploy-service
 
  apigatewayserver:
-    image: "apexhunt/apigatewayserver:v8"
+    image: "apexhunt/apigatewayserver:v9"
     container_name: gatewayserverApex
     ports:
       - "8072:8072"
