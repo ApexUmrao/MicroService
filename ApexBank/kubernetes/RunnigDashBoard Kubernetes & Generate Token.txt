@@ -1,0 +1,28 @@
+--> You can enable access to the Dashboard using the kubectl command-line tool, by running the following command:
+
+kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
+
+
+
+
+
+Creating sample user 
+
+--> Prerequisite - Creating a Service Account + Creating a ClusterRoleBinding = dashboard-admin.yaml (First Time)
+
+kubectl apply -f dashboard-adminuser.yaml 
+
+
+
+--> Now we need to find the token we can use to log in. Execute the following command:
+
+kubectl -n kubernetes-dashboard create token admin-user
+
+
+
+
+--> For Long lived Token After Secret is created, we can execute the following command to get the token which is saved in the Secret:
+
+kubectl describe secret admin-user -n kubernetes-dashboard
+
+
