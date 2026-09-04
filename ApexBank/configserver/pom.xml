@@ -92,7 +92,7 @@
                 <version>3.5.1</version>
                 <configuration>
                     <to>
-                        <image>apexhunt/${project.artifactId}:v9</image>
+                        <image>apexhunt/${project.artifactId}:v10</image>
                     </to>
                 </configuration>
             </plugin>
