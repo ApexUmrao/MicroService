@@ -3,6 +3,7 @@ package com.apex.loans;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import com.apex.loans.dto.LoansContactInfoDto;
@@ -39,6 +40,7 @@ import io.swagger.v3.oas.annotations.info.License;
 		)
 )
 @EnableConfigurationProperties(value = {LoansContactInfoDto.class})
+@EnableDiscoveryClient
 public class LoansApplication {
 
 	public static void main(String[] args) {

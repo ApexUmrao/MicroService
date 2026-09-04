@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.circuitbreaker.resilience4j.ReactiveResilience4JCircuitBreakerFactory;
 import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JConfigBuilder;
 import org.springframework.cloud.client.circuitbreaker.Customizer;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -19,6 +20,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 @SpringBootApplication
+@EnableDiscoveryClient
 public class ApigatewayserverApplication {
 
     public static void main(String[] args) {
@@ -34,7 +36,8 @@ public class ApigatewayserverApplication {
                                 .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
                                 .circuitBreaker(config -> config.setName("accountsCircuitBreaker")
                                         .setFallbackUri("forward:/contactSupport")))
-                        .uri("lb://ACCOUNTS"))
+                        //.uri("lb://ACCOUNTS"))
+                        .uri("http://accounts:8080"))
                 .route(p -> p
                         .path("/apexbank/loans/**")
                         .filters( f -> f.rewritePath("/apexbank/loans/(?<segment>.*)","/${segment}")
@@ -44,7 +47,8 @@ public class ApigatewayserverApplication {
                                 .retry(retryConfig -> retryConfig.setRetries(3)
                                         .setMethods(HttpMethod.GET)
                                         .setBackoff(Duration.ofMillis(100),Duration.ofMillis(1000),2,true)))
-                        .uri("lb://LOANS"))
+                        //.uri("lb://LOANS"))
+                        .uri("http://loans:8090"))
                 .route(p -> p
                         .path("/apexbank/cards/**")
                         .filters( f -> f.rewritePath("/apexbank/cards/(?<segment>.*)","/${segment}")
@@ -53,7 +57,9 @@ public class ApigatewayserverApplication {
 //                                        .setFallbackUri("forward:/contactSupport"))
                                 .requestRateLimiter(config -> config.setRateLimiter(redisRateLimiter())
                                         .setKeyResolver(userKeyResolver())))
-                        .uri("lb://CARDS")).build();
+                        //.uri("lb://CARDS"))
+                        .uri("http://cards:9000"))
+                .build();
 
     }
 
