@@ -1,0 +1,1220 @@
+Microsoft Windows [Version 10.0.26200.8037]
+(c) Microsoft Corporation. All rights reserved.
+
+D:\MicroServiceQ\ApexBank\helm>helm create apexbank-common
+Creating apexbank-common
+
+D:\MicroServiceQ\ApexBank\helm>helm create apexbank-services
+Creating apexbank-services
+
+D:\MicroServiceQ\ApexBank\helm>cd apexbank-services
+
+D:\MicroServiceQ\ApexBank\helm\apexbank-services>helm create accounts
+Creating accounts
+
+D:\MicroServiceQ\ApexBank\helm\apexbank-services>cd accounts
+
+D:\MicroServiceQ\ApexBank\helm\apexbank-services\accounts>helm dependencies build
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "aws-secrets-manager" chart repository
+...Successfully got an update from the "secrets-store-csi-driver" chart repository
+...Successfully got an update from the "kubernetes-dashboard" chart repository
+...Successfully got an update from the "eks" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Deleting outdated charts
+
+D:\MicroServiceQ\ApexBank\helm\apexbank-services\accounts>cd..
+
+D:\MicroServiceQ\ApexBank\helm\apexbank-services>cd cards
+
+D:\MicroServiceQ\ApexBank\helm\apexbank-services\cards>helm dependencies build
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "aws-secrets-manager" chart repository
+...Successfully got an update from the "secrets-store-csi-driver" chart repository
+...Successfully got an update from the "kubernetes-dashboard" chart repository
+...Successfully got an update from the "eks" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Deleting outdated charts
+
+D:\MicroServiceQ\ApexBank\helm\apexbank-services\cards>cd..
+
+D:\MicroServiceQ\ApexBank\helm\apexbank-services>cd..
+
+D:\MicroServiceQ\ApexBank\helm>cd environments
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm create dev-env
+Creating dev-env
+
+D:\MicroServiceQ\ApexBank\helm\environments>dev-env
+'dev-env' is not recognized as an internal or external command,
+operable program or batch file.
+
+D:\MicroServiceQ\ApexBank\helm\environments>cd dev-env
+
+D:\MicroServiceQ\ApexBank\helm\environments\dev-env>helm dependencies build
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "secrets-store-csi-driver" chart repository
+...Successfully got an update from the "aws-secrets-manager" chart repository
+...Successfully got an update from the "eks" chart repository
+...Successfully got an update from the "kubernetes-dashboard" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 8 charts
+Deleting outdated charts
+
+D:\MicroServiceQ\ApexBank\helm\environments\dev-env>helm template .
+---
+# Source: dev-env/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apexbankdev-configmap
+data:
+  SPRING_PROFILES_ACTIVE: default
+  SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI: http://keycloak.default.svc.cluster.local:80/realms/master/protocol/openid-connect/certs
+  JAVA_TOOL_OPTIONS: -javaagent:/app/libs/opentelemetry-javaagent-2.22.0.jar
+  OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo.default.svc.cluster.local:4318
+  OTEL_METRICS_EXPORTER: none
+  OTEL_LOGS_EXPORTER: none
+  SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: kafka-controller-0.kafka-controller-headless.default.svc.cluster.local:9092
+---
+# Source: dev-env/charts/accounts/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: accounts
+spec:
+  selector:
+    app: accounts
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+---
+# Source: dev-env/charts/apigatewayserver/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: apigatewayserver
+spec:
+  selector:
+    app: apigatewayserver
+  type: LoadBalancer
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8072
+      targetPort: 8072
+---
+# Source: dev-env/charts/cards/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: cards
+spec:
+  selector:
+    app: cards
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
+---
+# Source: dev-env/charts/configserver/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: configserver
+spec:
+  selector:
+    app: configserver
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8071
+      targetPort: 8071
+---
+# Source: dev-env/charts/eurekaserver/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: eurekaserver
+spec:
+  selector:
+    app: eurekaserver
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8070
+      targetPort: 8070
+---
+# Source: dev-env/charts/loans/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: loans
+spec:
+  selector:
+    app: loans
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8090
+      targetPort: 8090
+---
+# Source: dev-env/charts/message/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: message
+spec:
+  selector:
+    app: message
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 9010
+      targetPort: 9010
+---
+# Source: dev-env/charts/accounts/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: accounts-deployment
+  labels:
+    app: accounts
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: accounts
+  template:
+    metadata:
+      labels:
+        app: accounts
+    spec:
+      containers:
+      - name: accounts
+        image: "apexhunt/accounts:v9"
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: SPRING_APPLICATION_NAME
+          value: accounts
+        - name: SPRING_PROFILES_ACTIVE
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: SPRING_PROFILES_ACTIVE
+        - name: SPRING_CONFIG_IMPORT
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: SPRING_CONFIG_IMPORT
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        - name: JAVA_TOOL_OPTIONS
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: JAVA_TOOL_OPTIONS
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_EXPORTER_OTLP_ENDPOINT
+        - name: OTEL_METRICS_EXPORTER
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_METRICS_EXPORTER
+        - name: OTEL_LOGS_EXPORTER
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_LOGS_EXPORTER
+        - name: OTEL_SERVICE_NAME
+          value: accounts
+        - name: SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS
+---
+# Source: dev-env/charts/apigatewayserver/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigatewayserver-deployment
+  labels:
+    app: apigatewayserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apigatewayserver
+  template:
+    metadata:
+      labels:
+        app: apigatewayserver
+    spec:
+      containers:
+      - name: apigatewayserver
+        image: "apexhunt/apigatewayserver:v9"
+        ports:
+        - containerPort: 8072
+          protocol: TCP
+        env:
+        - name: SPRING_APPLICATION_NAME
+          value: apigatewayserver
+        - name: SPRING_PROFILES_ACTIVE
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: SPRING_PROFILES_ACTIVE
+        - name: SPRING_CONFIG_IMPORT
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: SPRING_CONFIG_IMPORT
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK-SET-URI
+        - name: JAVA_TOOL_OPTIONS
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: JAVA_TOOL_OPTIONS
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_EXPORTER_OTLP_ENDPOINT
+        - name: OTEL_METRICS_EXPORTER
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_METRICS_EXPORTER
+        - name: OTEL_LOGS_EXPORTER
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_LOGS_EXPORTER
+        - name: OTEL_SERVICE_NAME
+          value: apigatewayserver
+---
+# Source: dev-env/charts/cards/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cards-deployment
+  labels:
+    app: cards
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cards
+  template:
+    metadata:
+      labels:
+        app: cards
+    spec:
+      containers:
+      - name: cards
+        image: "apexhunt/cards:v9"
+        ports:
+        - containerPort: 9000
+          protocol: TCP
+        env:
+        - name: SPRING_APPLICATION_NAME
+          value: cards
+        - name: SPRING_PROFILES_ACTIVE
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: SPRING_PROFILES_ACTIVE
+        - name: SPRING_CONFIG_IMPORT
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: SPRING_CONFIG_IMPORT
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        - name: JAVA_TOOL_OPTIONS
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: JAVA_TOOL_OPTIONS
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_EXPORTER_OTLP_ENDPOINT
+        - name: OTEL_METRICS_EXPORTER
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_METRICS_EXPORTER
+        - name: OTEL_LOGS_EXPORTER
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_LOGS_EXPORTER
+        - name: OTEL_SERVICE_NAME
+          value: cards
+---
+# Source: dev-env/charts/configserver/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: configserver-deployment
+  labels:
+    app: configserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: configserver
+  template:
+    metadata:
+      labels:
+        app: configserver
+    spec:
+      containers:
+      - name: configserver
+        image: "apexhunt/configserver:v9"
+        ports:
+        - containerPort: 8071
+          protocol: TCP
+        env:
+        - name: SPRING_APPLICATION_NAME
+          value: configserver
+        - name: JAVA_TOOL_OPTIONS
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: JAVA_TOOL_OPTIONS
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_EXPORTER_OTLP_ENDPOINT
+        - name: OTEL_METRICS_EXPORTER
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_METRICS_EXPORTER
+        - name: OTEL_LOGS_EXPORTER
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_LOGS_EXPORTER
+        - name: OTEL_SERVICE_NAME
+          value: configserver
+---
+# Source: dev-env/charts/eurekaserver/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eurekaserver-deployment
+  labels:
+    app: eurekaserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eurekaserver
+  template:
+    metadata:
+      labels:
+        app: eurekaserver
+    spec:
+      containers:
+      - name: eurekaserver
+        image: "apexhunt/eurekaserver:v9"
+        ports:
+        - containerPort: 8070
+          protocol: TCP
+        env:
+        - name: SPRING_APPLICATION_NAME
+          value: eurekaserver
+        - name: SPRING_CONFIG_IMPORT
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: SPRING_CONFIG_IMPORT
+        - name: JAVA_TOOL_OPTIONS
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: JAVA_TOOL_OPTIONS
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_EXPORTER_OTLP_ENDPOINT
+        - name: OTEL_METRICS_EXPORTER
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_METRICS_EXPORTER
+        - name: OTEL_LOGS_EXPORTER
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_LOGS_EXPORTER
+        - name: OTEL_SERVICE_NAME
+          value: eurekaserver
+---
+# Source: dev-env/charts/loans/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loans-deployment
+  labels:
+    app: loans
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loans
+  template:
+    metadata:
+      labels:
+        app: loans
+    spec:
+      containers:
+      - name: loans
+        image: "apexhunt/loans:v9"
+        ports:
+        - containerPort: 8090
+          protocol: TCP
+        env:
+        - name: SPRING_APPLICATION_NAME
+          value: loans
+        - name: SPRING_PROFILES_ACTIVE
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: SPRING_PROFILES_ACTIVE
+        - name: SPRING_CONFIG_IMPORT
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: SPRING_CONFIG_IMPORT
+        - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+        - name: JAVA_TOOL_OPTIONS
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: JAVA_TOOL_OPTIONS
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_EXPORTER_OTLP_ENDPOINT
+        - name: OTEL_METRICS_EXPORTER
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_METRICS_EXPORTER
+        - name: OTEL_LOGS_EXPORTER
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: OTEL_LOGS_EXPORTER
+        - name: OTEL_SERVICE_NAME
+          value: loans
+---
+# Source: dev-env/charts/message/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: message-deployment
+  labels:
+    app: message
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: message
+  template:
+    metadata:
+      labels:
+        app: message
+    spec:
+      containers:
+      - name: message
+        image: "apexhunt/message:v9"
+        ports:
+        - containerPort: 9010
+          protocol: TCP
+        env:
+        - name: SPRING_APPLICATION_NAME
+          value: message
+        - name: SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS
+          valueFrom:
+            configMapKeyRef:
+              name: apexbankdev-configmap
+              key: SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS
+
+D:\MicroServiceQ\ApexBank\helm\environments\dev-env>cd..
+
+D:\MicroServiceQ\ApexBank\helm\environments>cd..
+
+D:\MicroServiceQ\ApexBank\helm>ls
+'ls' is not recognized as an internal or external command,
+operable program or batch file.
+
+D:\MicroServiceQ\ApexBank\helm> dir /A
+ Volume in drive D is New Volume
+ Volume Serial Number is 867D-528A
+
+ Directory of D:\MicroServiceQ\ApexBank\helm
+
+04-09-2026  15:20    <DIR>          .
+04-09-2026  13:49    <DIR>          ..
+04-09-2026  13:50    <DIR>          apexbank-common
+04-09-2026  14:36    <DIR>          apexbank-services
+04-09-2026  15:04    <DIR>          environments
+04-09-2026  15:20    <DIR>          keycloak
+               0 File(s)              0 bytes
+               6 Dir(s)  240,907,808,768 bytes free
+
+D:\MicroServiceQ\ApexBank\helm>helm install keycloak keycloak/
+Error: INSTALLATION FAILED: an error occurred while checking for chart dependencies. You may need to run 'helm dependency build' to fetch missing dependencies: found in Chart.yaml, but missing in charts/ directory: postgresql, common
+
+D:\MicroServiceQ\ApexBank\helm>cd keycloak
+
+D:\MicroServiceQ\ApexBank\helm\keycloak>helm dependencies build
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "secrets-store-csi-driver" chart repository
+...Successfully got an update from the "kubernetes-dashboard" chart repository
+...Successfully got an update from the "aws-secrets-manager" chart repository
+...Successfully got an update from the "eks" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 2 charts
+Downloading postgresql from repo oci://registry-1.docker.io/bitnamicharts
+Pulled: registry-1.docker.io/bitnamicharts/postgresql:16.7.27
+Digest: sha256:4ed63727a46ff6e6e1cc48b87c75c4b2abe9e5901d38079ba22768895c00de7a
+Downloading common from repo oci://registry-1.docker.io/bitnamicharts
+Pulled: registry-1.docker.io/bitnamicharts/common:2.31.4
+Digest: sha256:98cc992cb269f0b3f8f87c4bf933c1c0991b2d639f79e0bf62d1f35926efeb3f
+Deleting outdated charts
+
+D:\MicroServiceQ\ApexBank\helm\keycloak>cd..
+
+D:\MicroServiceQ\ApexBank\helm>helm install keycloak keycloak/
+level=INFO msg="warning: destination for postgresql.tls.autoGenerated is a table. Ignoring non-table value (false)"
+I0904 15:29:01.470120   25348 warnings.go:107] "Warning: spec.SessionAffinity is ignored for headless services"
+I0904 15:29:01.470120   25348 warnings.go:107] "Warning: spec.SessionAffinity is ignored for headless services"
+NAME: keycloak
+LAST DEPLOYED: Fri Sep  4 15:29:00 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+CHART NAME: keycloak
+CHART VERSION: 25.4.0
+APP VERSION: 26.3.3
+
+⚠ WARNING: Since August 28th, 2025, only a limited subset of images/charts are available for free.
+    Subscribe to Bitnami Secure Images to receive continued support and security updates.
+    More info at https://bitnami.com and https://github.com/bitnami/containers/issues/83267
+
+** Please be patient while the chart is being deployed **
+
+Keycloak can be accessed through the following DNS name from within your cluster:
+
+    keycloak.default.svc.cluster.local (port 80)
+
+To access Keycloak from outside the cluster execute the following commands:
+
+1. Get the Keycloak URL by running these commands:
+
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+        You can watch its status by running 'kubectl get --namespace default svc -w keycloak'
+
+    export SERVICE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[?(@.name=='http')].port}" services keycloak)
+    export SERVICE_IP=$(kubectl get svc --namespace default keycloak -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+
+    echo "http://${SERVICE_IP}:${SERVICE_PORT}/"
+
+2. Access Keycloak using the obtained URL.
+3. Access the Administration Console using the following credentials:
+
+  echo Username: user
+  echo Password: $(kubectl get secret --namespace default keycloak -o jsonpath="{.data.admin-password}" | base64 -d)
+
+WARNING: There are "resources" sections in the chart not set. Using "resourcesPreset" is not recommended for production. For production installations, please set the following values according to your workload needs:
+  - resources
++info https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+
+D:\MicroServiceQ\ApexBank\helm> echo Username: user
+Username: user
+
+D:\MicroServiceQ\ApexBank\helm>  echo Password: $(kubectl get secret --namespace default keycloak -o jsonpath="{.data.admin-password}" | base64 -d)
+'base64' is not recognized as an internal or external command,
+operable program or batch file.
+
+D:\MicroServiceQ\ApexBank\helm>echo Password: $(kubectl get secret --namespace default keycloak -o jsonpath="{.data.admin-password}" | base64 -d)
+'base64' is not recognized as an internal or external command,
+operable program or batch file.
+
+D:\MicroServiceQ\ApexBank\helm>echo Password: $(kubectl get secret --namespace default keycloak -o jsonpath="{.data.admin-password}")
+Password: $(kubectl get secret --namespace default keycloak -o jsonpath="{.data.admin-password}")
+
+D:\MicroServiceQ\ApexBank\helm>export SERVICE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[?(@.name=='http')].port}" services keycloak)
+'export' is not recognized as an internal or external command,
+operable program or batch file.
+
+D:\MicroServiceQ\ApexBank\helm>echo "http://${SERVICE_IP}:${SERVICE_PORT}/"
+"http://${SERVICE_IP}:${SERVICE_PORT}/"
+
+D:\MicroServiceQ\ApexBank\helm>for /f "delims=" %i in ('kubectl get --namespace default -o jsonpath="{.spec.ports[?(@.name=='http')].port}" services keycloak') do set SERVICE_PORT=%i
+error: the server doesn't have a resource type "{"
+
+D:\MicroServiceQ\ApexBank\helm>kubectl get services
+NAME                     TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+keycloak                 LoadBalancer   10.110.139.214   <pending>     80:31479/TCP   14m
+keycloak-headless        ClusterIP      None             <none>        8080/TCP       14m
+keycloak-postgresql      ClusterIP      10.111.179.109   <none>        5432/TCP       14m
+keycloak-postgresql-hl   ClusterIP      None             <none>        5432/TCP       14m
+kubernetes               ClusterIP      10.96.0.1        <none>        443/TCP        177m
+
+D:\MicroServiceQ\ApexBank\helm>kubectl get services
+NAME                     TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+keycloak                 LoadBalancer   10.110.139.214   <pending>     80:31479/TCP   15m
+keycloak-headless        ClusterIP      None             <none>        8080/TCP       15m
+keycloak-postgresql      ClusterIP      10.111.179.109   <none>        5432/TCP       15m
+keycloak-postgresql-hl   ClusterIP      None             <none>        5432/TCP       15m
+kubernetes               ClusterIP      10.96.0.1        <none>        443/TCP        178m
+
+D:\MicroServiceQ\ApexBank\helm>echo "http://${SERVICE_IP}:${SERVICE_PORT}/"
+"http://${SERVICE_IP}:${SERVICE_PORT}/"
+
+D:\MicroServiceQ\ApexBank\helm>kubectl get pods -o wide
+NAME                    READY   STATUS                  RESTARTS   AGE   IP          NODE             NOMINATED NODE   READINESS GATES
+keycloak-0              0/1     Init:ImagePullBackOff   0          24m   10.1.0.55   docker-desktop   <none>           <none>
+keycloak-postgresql-0   0/1     ImagePullBackOff        0          24m   10.1.0.56   docker-desktop   <none>           <none>
+
+D:\MicroServiceQ\ApexBank\helm>kubectl describe pod keycloak-postgresql-0
+Name:             keycloak-postgresql-0
+Namespace:        default
+Priority:         0
+Service Account:  keycloak-postgresql
+Node:             docker-desktop/192.168.65.3
+Start Time:       Fri, 04 Sep 2026 15:29:01 +0530
+Labels:           app.kubernetes.io/component=primary
+                  app.kubernetes.io/instance=keycloak
+                  app.kubernetes.io/managed-by=Helm
+                  app.kubernetes.io/name=postgresql
+                  app.kubernetes.io/version=17.6.0
+                  apps.kubernetes.io/pod-index=0
+                  controller-revision-hash=keycloak-postgresql-669bfdd65
+                  helm.sh/chart=postgresql-16.7.27
+                  statefulset.kubernetes.io/pod-name=keycloak-postgresql-0
+Annotations:      <none>
+Status:           Pending
+IP:               10.1.0.56
+IPs:
+  IP:           10.1.0.56
+Controlled By:  StatefulSet/keycloak-postgresql
+Containers:
+  postgresql:
+    Container ID:
+    Image:           docker.io/bitnami/postgresql:17.6.0-debian-12-r4
+    Image ID:
+    Port:            5432/TCP (tcp-postgresql)
+    Host Port:       0/TCP (tcp-postgresql)
+    SeccompProfile:  RuntimeDefault
+    State:           Waiting
+      Reason:        ImagePullBackOff
+    Ready:           False
+    Restart Count:   0
+    Limits:
+      cpu:                150m
+      ephemeral-storage:  2Gi
+      memory:             192Mi
+    Requests:
+      cpu:                100m
+      ephemeral-storage:  50Mi
+      memory:             128Mi
+    Liveness:             exec [/bin/sh -c exec pg_isready -U "bn_keycloak" -d "dbname=bitnami_keycloak" -h 127.0.0.1 -p 5432] delay=30s timeout=5s period=10s #success=1 #failure=6
+    Readiness:            exec [/bin/sh -c -e exec pg_isready -U "bn_keycloak" -d "dbname=bitnami_keycloak" -h 127.0.0.1 -p 5432
+[ -f /opt/bitnami/postgresql/tmp/.initialized ] || [ -f /bitnami/postgresql/.initialized ]
+] delay=5s timeout=5s period=10s #success=1 #failure=6
+    Environment:
+      BITNAMI_DEBUG:                        false
+      POSTGRESQL_PORT_NUMBER:               5432
+      POSTGRESQL_VOLUME_DIR:                /bitnami/postgresql
+      PGDATA:                               /bitnami/postgresql/data
+      POSTGRES_USER:                        bn_keycloak
+      POSTGRES_PASSWORD_FILE:               /opt/bitnami/postgresql/secrets/password
+      POSTGRES_POSTGRES_PASSWORD_FILE:      /opt/bitnami/postgresql/secrets/postgres-password
+      POSTGRES_DATABASE:                    bitnami_keycloak
+      POSTGRESQL_ENABLE_LDAP:               no
+      POSTGRESQL_ENABLE_TLS:                no
+      POSTGRESQL_LOG_HOSTNAME:              false
+      POSTGRESQL_LOG_CONNECTIONS:           false
+      POSTGRESQL_LOG_DISCONNECTIONS:        false
+      POSTGRESQL_PGAUDIT_LOG_CATALOG:       off
+      POSTGRESQL_CLIENT_MIN_MESSAGES:       error
+      POSTGRESQL_SHARED_PRELOAD_LIBRARIES:  pgaudit
+    Mounts:
+      /bitnami/postgresql from data (rw)
+      /dev/shm from dshm (rw)
+      /opt/bitnami/postgresql/conf from empty-dir (rw,path="app-conf-dir")
+      /opt/bitnami/postgresql/secrets/ from postgresql-password (rw)
+      /opt/bitnami/postgresql/tmp from empty-dir (rw,path="app-tmp-dir")
+      /tmp from empty-dir (rw,path="tmp-dir")
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True
+  Initialized                 True
+  Ready                       False
+  ContainersReady             False
+  PodScheduled                True
+Volumes:
+  data:
+    Type:       PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)
+    ClaimName:  data-keycloak-postgresql-0
+    ReadOnly:   false
+  empty-dir:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:
+    SizeLimit:  <unset>
+  postgresql-password:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  keycloak-postgresql
+    Optional:    false
+  dshm:
+    Type:        EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:      Memory
+    SizeLimit:   <unset>
+QoS Class:       Burstable
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                 node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason            Age                  From               Message
+  ----     ------            ----                 ----               -------
+  Warning  FailedScheduling  25m (x4 over 25m)    default-scheduler  0/1 nodes are available: pod has unbound immediatePersistentVolumeClaims. not found
+  Normal   Scheduled         25m                  default-scheduler  Successfully assigned default/keycloak-postgresql-0 to docker-desktop
+  Normal   Pulling           22m (x5 over 25m)    kubelet            Pulling image "docker.io/bitnami/postgresql:17.6.0-debian-12-r4"
+  Warning  Failed            22m (x5 over 25m)    kubelet            Failed to pull image "docker.io/bitnami/postgresql:17.6.0-debian-12-r4": Error response from daemon: failed to resolve reference "docker.io/bitnami/postgresql:17.6.0-debian-12-r4": docker.io/bitnami/postgresql:17.6.0-debian-12-r4: not found
+  Warning  Failed            22m (x5 over 25m)    kubelet            Error: ErrImagePull
+  Normal   BackOff           32s (x107 over 25m)  kubelet            Back-off pulling image "docker.io/bitnami/postgresql:17.6.0-debian-12-r4"
+  Warning  Failed            32s (x107 over 25m)  kubelet            Error: ImagePullBackOff
+
+D:\MicroServiceQ\ApexBank\helm>helm uninstall keycloak
+release "keycloak" uninstalled
+
+D:\MicroServiceQ\ApexBank\helm>kubectl get pods -o wide
+No resources found in default namespace.
+
+D:\MicroServiceQ\ApexBank\helm>kubectl get services
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   3h11m
+
+D:\MicroServiceQ\ApexBank\helm>kubectl get pvc
+NAME                         STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS  VOLUMEATTRIBUTESCLASS   AGE
+data-keycloak-postgresql-0   Bound    pvc-95bd72e1-630b-4d0b-84e4-35896d47f937   8Gi        RWO            hostpath  <unset>                 37m
+
+D:\MicroServiceQ\ApexBank\helm>kubectl delete pvc data-keycloak-postgresql-0
+persistentvolumeclaim "data-keycloak-postgresql-0" deleted from default namespace
+
+D:\MicroServiceQ\ApexBank\helm>
+D:\MicroServiceQ\ApexBank\helm>kubectl get pvc
+No resources found in default namespace.
+
+D:\MicroServiceQ\ApexBank\helm>helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard
+Release "kubernetes-dashboard" does not exist. Installing it now.
+NAME: kubernetes-dashboard
+LAST DEPLOYED: Fri Sep  4 16:12:41 2026
+NAMESPACE: kubernetes-dashboard
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+NOTES:
+*************************************************************************************************
+*** PLEASE BE PATIENT: Kubernetes Dashboard may need a few minutes to get up and become ready ***
+*************************************************************************************************
+
+Congratulations! You have just installed Kubernetes Dashboard in your cluster.
+
+To access Dashboard run:
+  kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
+
+NOTE: In case port-forward command does not work, make sure that kong service name is correct.
+      Check the services in Kubernetes Dashboard namespace using:
+        kubectl -n kubernetes-dashboard get svc
+
+Dashboard will be available at:
+  https://localhost:8443
+
+D:\MicroServiceQ\ApexBank\helm> kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
+Forwarding from 127.0.0.1:8443 -> 8443
+Forwarding from [::1]:8443 -> 8443
+Handling connection for 8443
+Handling connection for 8443
+Handling connection for 8443
+Handling connection for 8443
+Handling connection for 8443
+
+D:\MicroServiceQ\ApexBank\helm>
+D:\MicroServiceQ\ApexBank\helm>helm install keycloak keycloak
+NAME: keycloak
+LAST DEPLOYED: Fri Sep  4 16:30:19 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank\helm>kubectl get pods -o wide
+NAME                       READY   STATUS         RESTARTS   AGE     IP          NODE             NOMINATED NODE   READINESS GATES
+keycloak-d5b799b98-tmlhs   0/1     ErrImagePull   0          4m57s   10.1.0.62   docker-desktop   <none>           <none>
+
+D:\MicroServiceQ\ApexBank\helm>helm uninstall keycloak
+release "keycloak" uninstalled
+
+D:\MicroServiceQ\ApexBank\helm>
+D:\MicroServiceQ\ApexBank\helm>kubectl get pods -o wide
+No resources found in default namespace.
+
+D:\MicroServiceQ\ApexBank\helm>helm dependencies build
+Error: Chart.yaml file is missing
+
+D:\MicroServiceQ\ApexBank\helm>cd keycloak
+
+D:\MicroServiceQ\ApexBank\helm\keycloak>helm dependencies build
+
+D:\MicroServiceQ\ApexBank\helm\keycloak>cd
+D:\MicroServiceQ\ApexBank\helm\keycloak
+
+D:\MicroServiceQ\ApexBank\helm\keycloak>cd..
+
+D:\MicroServiceQ\ApexBank\helm>helm install keycloak keycloak
+NAME: keycloak
+LAST DEPLOYED: Fri Sep  4 16:36:33 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank\helm>kubectl get svc
+NAME         TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+keycloak     LoadBalancer   10.110.192.115   <pending>     80:32511/TCP   5m47s
+kubernetes   ClusterIP      10.96.0.1        <none>        443/TCP        3h56m
+
+D:\MicroServiceQ\ApexBank\helm>kubectl port-forward svc/keycloak 8080:80
+Forwarding from 127.0.0.1:8080 -> 8080
+Forwarding from [::1]:8080 -> 8080
+Handling connection for 8080
+Handling connection for 8080
+Handling connection for 8080
+Handling connection for 8080
+Handling connection for 8080
+Handling connection for 8080
+Handling connection for 8080
+Handling connection for 8080
+Handling connection for 8080
+Handling connection for 8080
+Handling connection for 8080
+Handling connection for 8080
+Handling connection for 8080
+Handling connection for 8080
+
+D:\MicroServiceQ\ApexBank\helm>kubectl get svc
+NAME         TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+keycloak     LoadBalancer   10.110.192.115   <pending>     80:32511/TCP   58m
+kubernetes   ClusterIP      10.96.0.1        <none>        443/TCP        4h48m
+
+D:\MicroServiceQ\ApexBank\helm> dir /A
+ Volume in drive D is New Volume
+ Volume Serial Number is 867D-528A
+
+ Directory of D:\MicroServiceQ\ApexBank\helm
+
+04-09-2026  16:27    <DIR>          .
+04-09-2026  13:49    <DIR>          ..
+04-09-2026  13:50    <DIR>          apexbank-common
+04-09-2026  14:36    <DIR>          apexbank-services
+04-09-2026  15:04    <DIR>          environments
+04-09-2026  16:27    <DIR>          keycloak
+               0 File(s)              0 bytes
+               6 Dir(s)  240,908,148,736 bytes free
+
+D:\MicroServiceQ\ApexBank\helm> dir /A
+ Volume in drive D is New Volume
+ Volume Serial Number is 867D-528A
+
+ Directory of D:\MicroServiceQ\ApexBank\helm
+
+04-09-2026  17:38    <DIR>          .
+04-09-2026  13:49    <DIR>          ..
+04-09-2026  13:50    <DIR>          apexbank-common
+04-09-2026  14:36    <DIR>          apexbank-services
+04-09-2026  15:04    <DIR>          environments
+04-09-2026  17:38    <DIR>          kafka
+04-09-2026  16:27    <DIR>          keycloak
+               0 File(s)              0 bytes
+               7 Dir(s)  240,908,136,448 bytes free
+
+D:\MicroServiceQ\ApexBank\helm>cd kafka
+
+D:\MicroServiceQ\ApexBank\helm\kafka>helm install kafka kafka
+Error: INSTALLATION FAILED: non-absolute URLs should be in form of repo_name/path_to_chart, got: kafka
+
+D:\MicroServiceQ\ApexBank\helm\kafka>cd
+D:\MicroServiceQ\ApexBank\helm\kafka
+
+D:\MicroServiceQ\ApexBank\helm\kafka>cd..
+
+D:\MicroServiceQ\ApexBank\helm>helm install kafka kafka
+I0904 17:39:10.163505    1104 warnings.go:107] "Warning: spec.SessionAffinity is ignored for headless services"
+NAME: kafka
+LAST DEPLOYED: Fri Sep  4 17:39:09 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank\helm>kubectl get svc
+NAME                        TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)              AGE
+kafka                       LoadBalancer   10.106.163.191   localhost     9092:31576/TCP       3m24s
+kafka-controller-headless   ClusterIP      None             <none>        9092/TCP,29093/TCP   3m24s
+keycloak                    LoadBalancer   10.110.192.115   <pending>     80:32511/TCP         66m
+kubernetes                  ClusterIP      10.96.0.1        <none>        443/TCP              4h56m
+
+D:\MicroServiceQ\ApexBank\helm>helm install prometheus kube-prometheus
+NAME: prometheus
+LAST DEPLOYED: Fri Sep  4 17:56:57 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank\helm>cd grafana
+
+D:\MicroServiceQ\ApexBank\helm\grafana>helm dependencies build
+
+D:\MicroServiceQ\ApexBank\helm\grafana>cd..
+
+D:\MicroServiceQ\ApexBank\helm>helm install grafana grafana
+NAME: grafana
+LAST DEPLOYED: Fri Sep  4 18:01:41 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank\helm>helm install tempo grafana-tempo
+NAME: tempo
+LAST DEPLOYED: Fri Sep  4 18:03:29 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank\helm>kubectl get services
+NAME                         TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                                                             AGE
+grafana                      LoadBalancer   10.103.191.19    localhost     3000:31824/TCP                                                             2m31s
+kafka                        LoadBalancer   10.106.163.191   localhost     9092:31576/TCP                                                             25m
+kafka-controller-headless    ClusterIP      None             <none>        9092/TCP,29093/TCP                                                             25m
+keycloak                     LoadBalancer   10.110.192.115   <pending>     80:32511/TCP                                                             87m
+kubernetes                   ClusterIP      10.96.0.1        <none>        443/TCP                                                             5h18m
+prometheus-kube-prometheus   LoadBalancer   10.100.141.4     localhost     9090:31178/TCP                                                             7m15s
+tempo                        ClusterIP      10.100.104.113   <none>        6831/UDP,6832/UDP,3100/TCP,14268/TCP,14250/TCP,9411/TCP,55680/TCP,55681/TCP,4317/TCP,4318/TCP,55678/TCP   42s
+
+D:\MicroServiceQ\ApexBank\helm>helm install loki grafana-loki
+I0904 18:05:38.480030   10128 warnings.go:107] "Warning: spec.SessionAffinity is ignored for headless services"
+I0904 18:05:38.490206   10128 warnings.go:107] "Warning: spec.SessionAffinity is ignored for headless services"
+I0904 18:05:38.492027   10128 warnings.go:107] "Warning: spec.SessionAffinity is ignored for headless services"
+I0904 18:05:38.492027   10128 warnings.go:107] "Warning: spec.SessionAffinity is ignored for headless services"
+I0904 18:05:38.523585   10128 warnings.go:107] "Warning: spec.SessionAffinity is ignored for headless services"
+I0904 18:05:38.541060   10128 warnings.go:107] "Warning: spec.SessionAffinity is ignored for headless services"
+NAME: loki
+LAST DEPLOYED: Fri Sep  4 18:05:37 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank\helm>helm ls
+NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART        APP VERSION
+grafana         default         1               2026-09-04 18:01:41.0288727 +0530 IST   deployed        grafana-1.0.0        11.4.0
+kafka           default         1               2026-09-04 17:39:09.9788665 +0530 IST   deployed        kafka-1.0.0        4.1.0
+keycloak        default         1               2026-09-04 16:36:33.9861915 +0530 IST   deployed        keycloak-1.0.0        26.4.7
+loki            default         1               2026-09-04 18:05:37.5706049 +0530 IST   deployed        grafana-loki-1.0.0      3.1.2
+prometheus      default         1               2026-09-04 17:56:57.0665241 +0530 IST   deployed        kube-prometheus-1.0.0   v3.1.0
+tempo           default         1               2026-09-04 18:03:29.7790375 +0530 IST   deployed        grafana-tempo-1.0.0     2.6.1
+
+D:\MicroServiceQ\ApexBank\helm>cd environments
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm install apexbank prod-env
+NAME: apexbank
+LAST DEPLOYED: Fri Sep  4 18:13:08 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm dependencies build
+Error: Chart.yaml file is missing
+
+D:\MicroServiceQ\ApexBank\helm\environments>cd prod env
+The system cannot find the path specified.
+
+D:\MicroServiceQ\ApexBank\helm\environments>cd.. prod-env
+The system cannot find the path specified.
+
+D:\MicroServiceQ\ApexBank\helm\environments>cd prod-env
+
+D:\MicroServiceQ\ApexBank\helm\environments\prod-env>helm dependencies build
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "aws-secrets-manager" chart repository
+...Successfully got an update from the "secrets-store-csi-driver" chart repository
+...Successfully got an update from the "kubernetes-dashboard" chart repository
+...Successfully got an update from the "eks" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 8 charts
+Deleting outdated charts
+
+D:\MicroServiceQ\ApexBank\helm\environments\prod-env>helm upgrade apexbank prod-env
+Error: non-absolute URLs should be in form of repo_name/path_to_chart, got: prod-env
+
+D:\MicroServiceQ\ApexBank\helm\environments\prod-env>cd
+D:\MicroServiceQ\ApexBank\helm\environments\prod-env
+
+D:\MicroServiceQ\ApexBank\helm\environments\prod-env>cd..
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm upgrade apexbank prod-env
+Release "apexbank" has been upgraded. Happy Helming!
+NAME: apexbank
+LAST DEPLOYED: Fri Sep  4 18:33:25 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 2
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank\helm\environments>cd prod-env
+
+D:\MicroServiceQ\ApexBank\helm\environments\prod-env>helm dependencies build
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "kubernetes-dashboard" chart repository
+...Successfully got an update from the "aws-secrets-manager" chart repository
+...Successfully got an update from the "secrets-store-csi-driver" chart repository
+...Successfully got an update from the "eks" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 8 charts
+Deleting outdated charts
+
+D:\MicroServiceQ\ApexBank\helm\environments\prod-env>cd..
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm upgrade apexbank prod-env
+Release "apexbank" has been upgraded. Happy Helming!
+NAME: apexbank
+LAST DEPLOYED: Fri Sep  4 18:35:08 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 3
+DESCRIPTION: Upgrade complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm history
+Error: "helm history" requires 1 argument
+
+Usage:  helm history RELEASE_NAME [flags]
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm history apexbank
+REVISION        UPDATED                         STATUS          CHART           APP VERSION     DESCRIPTION
+1               Fri Sep  4 18:13:08 2026        superseded      prod-env-0.1.0  1.0.0           Install complete
+2               Fri Sep  4 18:33:25 2026        superseded      prod-env-0.1.0  1.0.0           Upgrade complete
+3               Fri Sep  4 18:35:08 2026        deployed        prod-env-0.1.0  1.0.0           Upgrade complete
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm rollback apexbank 1
+Rollback was a success! Happy Helming!
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm history apexbank
+REVISION        UPDATED                         STATUS          CHART           APP VERSION     DESCRIPTION
+1               Fri Sep  4 18:13:08 2026        superseded      prod-env-0.1.0  1.0.0           Install complete
+2               Fri Sep  4 18:33:25 2026        superseded      prod-env-0.1.0  1.0.0           Upgrade complete
+3               Fri Sep  4 18:35:08 2026        superseded      prod-env-0.1.0  1.0.0           Upgrade complete
+4               Fri Sep  4 18:41:18 2026        deployed        prod-env-0.1.0  1.0.0           Rollback to 1
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm ls
+NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART        APP VERSION
+apexbank        default         4               2026-09-04 18:41:18.7097363 +0530 IST   deployed        prod-env-0.1.0        1.0.0
+grafana         default         1               2026-09-04 18:01:41.0288727 +0530 IST   deployed        grafana-1.0.0        11.4.0
+kafka           default         1               2026-09-04 17:39:09.9788665 +0530 IST   deployed        kafka-1.0.0        4.1.0
+keycloak        default         1               2026-09-04 16:36:33.9861915 +0530 IST   deployed        keycloak-1.0.0        26.4.7
+loki            default         1               2026-09-04 18:05:37.5706049 +0530 IST   deployed        grafana-loki-1.0.0      3.1.2
+prometheus      default         1               2026-09-04 17:56:57.0665241 +0530 IST   deployed        kube-prometheus-1.0.0   v3.1.0
+tempo           default         1               2026-09-04 18:03:29.7790375 +0530 IST   deployed        grafana-tempo-1.0.0     2.6.1
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm uninstall apexbank
+release "apexbank" uninstalled
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm uninstall grafana
+release "grafana" uninstalled
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm uninstall tempo
+release "tempo" uninstalled
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm uninstall prometheus
+release "prometheus" uninstalled
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm uninstall loki
+release "loki" uninstalled
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm uninstall kafka
+release "kafka" uninstalled
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm uninstall keycloak
+release "keycloak" uninstalled
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm ls
+NAME    NAMESPACE       REVISION        UPDATED STATUS  CHART   APP VERSION
+

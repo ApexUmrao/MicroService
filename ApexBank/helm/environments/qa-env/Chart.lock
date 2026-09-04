@@ -1,0 +1,27 @@
+dependencies:
+- name: apexbank-common
+  repository: file://../../apexbank-common
+  version: 0.1.0
+- name: configserver
+  repository: file://../../apexbank-services/configserver
+  version: 0.1.0
+- name: eurekaserver
+  repository: file://../../apexbank-services/eurekaserver
+  version: 0.1.0
+- name: accounts
+  repository: file://../../apexbank-services/accounts
+  version: 0.1.0
+- name: cards
+  repository: file://../../apexbank-services/cards
+  version: 0.1.0
+- name: loans
+  repository: file://../../apexbank-services/loans
+  version: 0.1.0
+- name: apigatewayserver
+  repository: file://../../apexbank-services/apigatewayserver
+  version: 0.1.0
+- name: message
+  repository: file://../../apexbank-services/message
+  version: 0.1.0
+digest: sha256:775b78fe4a80106c5b662d7b3a85885986938b72dd44ec6500a8fb12340b5078
+generated: "2026-09-04T15:03:53.8249811+05:30"

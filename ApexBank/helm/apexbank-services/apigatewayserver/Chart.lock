@@ -1,0 +1,6 @@
+dependencies:
+- name: apexbank-common
+  repository: file://../../apexbank-common
+  version: 0.1.0
+digest: sha256:ec18dbf555bdde32eb2ddb58eff26da436357189d492cd2f5a45a26a0517267f
+generated: "2026-09-04T14:24:37.2103732+05:30"
