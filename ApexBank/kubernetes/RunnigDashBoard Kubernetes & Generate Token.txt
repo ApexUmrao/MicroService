@@ -10,7 +10,7 @@ Creating sample user
 
 --> Prerequisite - Creating a Service Account + Creating a ClusterRoleBinding = dashboard-admin.yaml (First Time)
 
-kubectl apply -f dashboard-adminuser.yaml 
+kubectl apply -f dashboard-admin.yaml 
 
 
 

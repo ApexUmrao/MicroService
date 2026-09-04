@@ -1,21 +1,21 @@
 # Comment out this to get a short-lived Bearer Token for ServiceAccount
 
-# apiVersion: v1
-# kind: ServiceAccount
-# metadata:
-#   name: admin-user
-#   namespace: kubernetes-dashboard
-
-# Comment out this to get a long-lived Bearer Token for ServiceAccount
-
 apiVersion: v1
-kind: Secret
+kind: ServiceAccount
 metadata:
   name: admin-user
   namespace: kubernetes-dashboard
-  annotations:
-    kubernetes.io/service-account.name: "admin-user"   
-type: kubernetes.io/service-account-token 
+
+# Comment out this to get a long-lived Bearer Token for ServiceAccount
+
+# apiVersion: v1
+# kind: Secret
+# metadata:
+#   name: admin-user
+#   namespace: kubernetes-dashboard
+#   annotations:
+#     kubernetes.io/service-account.name: "admin-user"   
+# type: kubernetes.io/service-account-token 
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
