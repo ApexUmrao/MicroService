@@ -10,9 +10,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Pattern;
-import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -63,7 +63,7 @@ public class CustomerController {
         logger.debug("apexBank-fetchCustomerDetails start : ");
         CustomerDetailsDto customerDetailsDto = CustomersService.fetchCustomerDetails(mobileNumber,correlationId);
         logger.debug("apexBank-fetchCustomerDetails end : ");
-        return ResponseEntity.status(HttpStatus.SC_OK).body(customerDetailsDto);
+        return ResponseEntity.status(HttpStatus.OK).body(customerDetailsDto);
 
     }
 
