@@ -1,0 +1,189 @@
+kubectl -n kubernetes-dashboard create token admin-user
+
+kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
+
+kubectl port-forward svc/keycloak 8080:80
+
+D:\MicroServiceQ\ApexBank\kubernetes>apply -f kubernetes-discoveryserver.yml
+'apply' is not recognized as an internal or external command,
+operable program or batch file.
+
+D:\MicroServiceQ\ApexBank\kubernetes>kubectl apply -f kubernetes-discoveryserver.yml
+service/spring-cloud-kubernetes-discoveryserver created
+serviceaccount/spring-cloud-kubernetes-discoveryserver created
+rolebinding.rbac.authorization.k8s.io/spring-cloud-kubernetes-discoveryserver:view created
+role.rbac.authorization.k8s.io/namespace-reader created
+deployment.apps/spring-cloud-kubernetes-discoveryserver-deployment created
+
+D:\MicroServiceQ\ApexBank\kubernetes>cd helm
+The system cannot find the path specified.
+
+D:\MicroServiceQ\ApexBank\kubernetes>cd.. helm
+The system cannot find the path specified.
+
+D:\MicroServiceQ\ApexBank\kubernetes>cd..
+
+D:\MicroServiceQ\ApexBank>cd helm
+
+D:\MicroServiceQ\ApexBank\helm> cd environments/dev-env
+
+D:\MicroServiceQ\ApexBank\helm\environments\dev-env>helm dependencies build
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "secrets-store-csi-driver" chart repository
+...Successfully got an update from the "kubernetes-dashboard" chart repository
+...Successfully got an update from the "aws-secrets-manager" chart repository
+...Successfully got an update from the "eks" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 7 charts
+Deleting outdated charts
+
+D:\MicroServiceQ\ApexBank\helm\environments\dev-env>cd..
+
+D:\MicroServiceQ\ApexBank\helm\environments> cd prod-env
+
+D:\MicroServiceQ\ApexBank\helm\environments\prod-env>helm dependencies build
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "aws-secrets-manager" chart repository
+...Successfully got an update from the "secrets-store-csi-driver" chart repository
+...Successfully got an update from the "kubernetes-dashboard" chart repository
+...Successfully got an update from the "eks" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 7 charts
+Deleting outdated charts
+
+D:\MicroServiceQ\ApexBank\helm\environments\prod-env>cd..
+
+D:\MicroServiceQ\ApexBank\helm\environments>cd qa-env
+
+D:\MicroServiceQ\ApexBank\helm\environments\qa-env>helm dependencies build
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "aws-secrets-manager" chart repository
+...Successfully got an update from the "secrets-store-csi-driver" chart repository
+...Successfully got an update from the "kubernetes-dashboard" chart repository
+...Successfully got an update from the "eks" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 7 charts
+Deleting outdated charts
+
+D:\MicroServiceQ\ApexBank\helm\environments\qa-env>cd..
+
+D:\MicroServiceQ\ApexBank\helm\environments>cd..
+
+D:\MicroServiceQ\ApexBank\helm>cd..
+
+D:\MicroServiceQ\ApexBank>helm install keycloak helm/keycloak
+NAME: keycloak
+LAST DEPLOYED: Sat Sep  5 16:43:08 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank>helm install kafka helm/kafka
+I0905 16:43:24.979401   23768 warnings.go:107] "Warning: spec.SessionAffinity is ignored for headless services"
+NAME: kafka
+LAST DEPLOYED: Sat Sep  5 16:43:24 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank>helm install tempo helm/grafana-tempo
+NAME: tempo
+LAST DEPLOYED: Sat Sep  5 16:50:41 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank>helm install loki helm/grafana-loki
+I0905 16:50:54.240521   30808 warnings.go:107] "Warning: spec.SessionAffinity is ignored for headless services"
+I0905 16:50:54.240521   30808 warnings.go:107] "Warning: spec.SessionAffinity is ignored for headless services"
+I0905 16:50:54.240521   30808 warnings.go:107] "Warning: spec.SessionAffinity is ignored for headless services"
+I0905 16:50:54.240521   30808 warnings.go:107] "Warning: spec.SessionAffinity is ignored for headless services"
+I0905 16:50:54.256302   30808 warnings.go:107] "Warning: spec.SessionAffinity is ignored for headless services"
+I0905 16:50:54.256302   30808 warnings.go:107] "Warning: spec.SessionAffinity is ignored for headless services"
+NAME: loki
+LAST DEPLOYED: Sat Sep  5 16:50:53 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank>helm install prometheus helm/kube-prometheus
+NAME: prometheus
+LAST DEPLOYED: Sat Sep  5 16:53:05 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank>helm install grafana helm/grafana
+NAME: grafana
+LAST DEPLOYED: Sat Sep  5 16:53:23 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank>helm ls
+NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART        APP VERSION
+grafana         default         1               2026-09-05 16:53:23.5033037 +0530 IST   deployed        grafana-1.0.0        11.4.0
+kafka           default         1               2026-09-05 16:43:24.7792681 +0530 IST   deployed        kafka-1.0.0        4.1.0
+keycloak        default         1               2026-09-05 16:43:08.6303518 +0530 IST   deployed        keycloak-1.0.0        26.4.7
+loki            default         1               2026-09-05 16:50:53.4120532 +0530 IST   deployed        grafana-loki-1.0.0      3.1.2
+prometheus      default         1               2026-09-05 16:53:05.9737972 +0530 IST   deployed        kube-prometheus-1.0.0   v3.1.0
+tempo           default         1               2026-09-05 16:50:41.3262529 +0530 IST   deployed        grafana-tempo-1.0.0     2.6.1
+
+D:\MicroServiceQ\ApexBank>helm install alloy helm/grafana-alloy
+NAME: alloy
+LAST DEPLOYED: Sat Sep  5 16:58:19 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank>kubectl get services
+NAME                                      TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)                                                                         AGE
+alloy                                     ClusterIP      10.99.34.125    <none>        12345/TCP                                                                         78s
+grafana                                   LoadBalancer   10.96.249.187   localhost     3000:31603/TCP                                                                         6m15s
+kafka                                     LoadBalancer   10.106.204.92   localhost     9092:32766/TCP                                                                         16m
+kafka-controller-headless                 ClusterIP      None            <none>        9092/TCP,29093/TCP                                                                         16m
+keycloak                                  LoadBalancer   10.109.41.143   <pending>     80:31404/TCP                                                                         16m
+kubernetes                                ClusterIP      10.96.0.1       <none>        443/TCP                                                                         28h
+loki-backend                              ClusterIP      10.96.99.173    <none>        3100/TCP,9095/TCP                                                                         8m44s
+loki-backend-headless                     ClusterIP      None            <none>        3100/TCP,9095/TCP                                                                         8m44s
+loki-canary                               ClusterIP      10.103.97.133   <none>        3500/TCP                                                                         8m44s
+loki-gateway                              ClusterIP      10.108.56.174   <none>        80/TCP                                                                         8m44s
+loki-memberlist                           ClusterIP      None            <none>        7946/TCP                                                                         8m44s
+loki-minio                                ClusterIP      10.97.135.220   <none>        9000/TCP                                                                         8m44s
+loki-minio-console                        ClusterIP      10.109.23.99    <none>        9001/TCP                                                                         8m44s
+loki-minio-svc                            ClusterIP      None            <none>        9000/TCP                                                                         8m44s
+loki-query-scheduler-discovery            ClusterIP      None            <none>        3100/TCP,9095/TCP                                                                         8m44s
+loki-read                                 ClusterIP      10.98.203.26    <none>        3100/TCP,9095/TCP                                                                         8m44s
+loki-read-headless                        ClusterIP      None            <none>        3100/TCP,9095/TCP                                                                         8m44s
+loki-write                                ClusterIP      10.99.46.157    <none>        3100/TCP,9095/TCP                                                                         8m44s
+loki-write-headless                       ClusterIP      None            <none>        3100/TCP,9095/TCP                                                                         8m44s
+prometheus-kube-prometheus                LoadBalancer   10.105.208.78   localhost     9090:32498/TCP                                                                         6m32s
+spring-cloud-kubernetes-discoveryserver   ClusterIP      10.105.5.236    <none>        80/TCP                                                                         30m
+tempo                                     ClusterIP      10.102.12.237   <none>        6831/UDP,6832/UDP,3100/TCP,14268/TCP,14250/TCP,9411/TCP,55680/TCP,55681/TCP,4317/TCP,4318/TCP,55678/TCP   8m57s
+
+D:\MicroServiceQ\ApexBank>cd helm/environments
+
+D:\MicroServiceQ\ApexBank\helm\environments>helm install apexbank prod-env
+NAME: apexbank
+LAST DEPLOYED: Sat Sep  5 17:05:46 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+
+D:\MicroServiceQ\ApexBank\helm\environments>
